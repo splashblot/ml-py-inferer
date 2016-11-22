@@ -10,7 +10,7 @@ import api
 
 class Download(flask_restful.Resource):
     def get(self, uuid, asset):
-        datamanager = api.getdatamanager()
+        datamanager = api.get_datamanager()
         # TODO: check here that uuid and asset doesn't contains ".." in the path.
         # Otherwise it would be a security flaw
         assert asset == 'all.zip', "{} asset not available. Asset can be only all.zip by now".format(asset)

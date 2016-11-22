@@ -1,18 +1,19 @@
 import datetime
-
 from typing import List, Dict, Any
 
-from api.v1.daos import optionDAO, StatusDAO, StatusCode
+from logic.daos import optionDAO, StatusDAO, StatusCode
 
 
 class Metadata():
-    def __init__(self, name:str, images:List[str], options:optionDAO, creation_date:datetime.datetime, status:StatusDAO, processingTime:int):
+    def __init__(self, uuid: str, name: str, images: List[str], options: optionDAO, creation_date: datetime.datetime,
+                 status: StatusDAO, processingTime: int):
         # See http://code.activestate.com/recipes/286185-automatically-initializing-instance-variables-from/#c1
         self.__dict__.update(locals())
         del self.self
 
     def toDict(self) -> Dict[str, Any]:
         return {
+            'uuid': self.uuid,
             'name': self.name,
             'images': self.images,
             'options': [o.toDict() for o in self.options],

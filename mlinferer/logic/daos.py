@@ -1,10 +1,6 @@
 from enum import Enum
 
-from typing import List, Iterable, Any, Dict
-
-API_VERSION_V1=1
-API_VERSION=API_VERSION_V1
-
+from typing import Iterable, Any, Dict
 
 class ResponseDAO:
     def __init__(self, success: bool, error: str = None):

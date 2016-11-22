@@ -31,7 +31,7 @@ trap 'kill ${!}; int_handler' SIGINT
 source activate py-faster-r-cnn
 cd /root/ml-py-inferer/mlinferer
 export FLASK_CONFIG=production
-python run.py &
+python run.py $@ &
 pid="$!"
 
 # wait forever

@@ -3,10 +3,12 @@ import flask_restful
 
 import api
 import api.v1
-from api.v1.daos import API_VERSION, StatusCode
-from api.v1.daos import InfoDAO
+from logic.daos import InfoDAO
+from logic.daos import StatusCode
 
 class Info(flask_restful.Resource):
     def get(self):
-        datamanager = api.getdatamanager()
-        return InfoDAO(datamanager.withmetadata(lambda meta: meta.status.code == StatusCode.QUEUED.name), API_VERSION).toDict()
+        datamanager = api.get_datamanager()
+        return InfoDAO(datamanager.withmetadata(
+            lambda meta: meta.status.code == StatusCode.QUEUED.name),
+            api.v1.API_VERSION).toDict()

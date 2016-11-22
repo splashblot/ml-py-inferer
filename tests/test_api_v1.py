@@ -1,15 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import json
-import pprint
 import unittest
 from os.path import join
 from zipfile import ZipFile
 
 import api
 from api import create_app
-from api.v1.daos import Response200DAO, ResponseDAO, TaskInfoDAO, StatusCode
 from logic import Metadata
+from logic.daos import Response200DAO, ResponseDAO, TaskInfoDAO, StatusCode
 
 CONTENTS = 'my file contents'
 try:
@@ -29,10 +28,13 @@ class APIV1TestCase(unittest.TestCase):
         self.app.app_context().push()
         self.app.testing = True
         self.url_prefix = self.app.config['URL_PREFIX']
-        self.datamanager = datamanager = api.getdatamanager()
+        self.datamanager = api.get_datamanager()
+        self.executor = api.get_executor()
 
     def tearDown(self):
+        self.executor.stop()
         self.datamanager.deleteall()
+
         # self.app.app_context().pop()
 
     #@unittest.skip("demonstrating skipping")
@@ -47,15 +49,16 @@ class APIV1TestCase(unittest.TestCase):
     def test_task_cancel(self):
         resp = self.app.test_client().post('/task/cancel', data={'uuid': 24})
         data = ResponseDAO(**fromJson(resp))
-        assert data.success == True
+        assert data.success == False
 
-    def test_task_new(self):
+    def test_task_lifecycle(self):
         resp = self.app.test_client().post(self.url_prefix + 'task/new', data={
             'images': [(StringIO(CONTENTS), "image1.jpg"), (StringIO(CONTENTS), "image2.jpg")],
             'name': 'Task1',
-            'options': '[{"name": "size", "value": "300"}, {"name": "param1", "value": "tal"}]'
+            'options': '[{"name": "nms_threshold", "value": "0.5"}]'
         })
         data = Response200DAO(**fromJson(resp))
+        uuid = data.uuid
 
         files = self.datamanager.files(data.uuid)
         assert 'image1.jpg' in files
@@ -64,13 +67,13 @@ class APIV1TestCase(unittest.TestCase):
         meta = Metadata.fromDict(json.loads(datastr))
         assert  meta.status.code == StatusCode.QUEUED, meta.status.code
 
-    def test_task_remove(self):
-        resp = self.app.test_client().post('/task/remove', data={'uuid': 24})
+        # restart
+        resp = self.app.test_client().post('/task/restart', data={'uuid': uuid})
         data = ResponseDAO(**fromJson(resp))
-        assert data.success == True
+        assert data.success == False
 
-    def test_task_restart(self):
-        resp = self.app.test_client().post('/task/restart', data={'uuid': 24})
+        # remove
+        resp = self.app.test_client().post('/task/remove', data={'uuid': uuid})
         data = ResponseDAO(**fromJson(resp))
         assert data.success == True
 
@@ -91,17 +94,16 @@ class APIV1TestCase(unittest.TestCase):
         resp = self.app.test_client().post(self.url_prefix + 'task/new', data={
             'images': [(StringIO(CONTENTS), "image1.jpg"), (StringIO(CONTENTS), "image2.jpg")],
             'name': 'Task1',
-            'options': '[{"name": "size", "value": "300"}, {"name": "param1", "value": "tal"}]'
+            'options': '[{"name": "nms_threshold", "value": "0.5"}]'
         })
         data = Response200DAO(**fromJson(resp))
 
         resp = self.app.test_client().get('/task/{}/info'.format(data.uuid))
         data = TaskInfoDAO.fromDict(fromJson(resp))
-        pprint.pprint(vars(data))
 
     def test_task_output(self):
         resp = self.app.test_client().get('/task/24j/output')
-        assert resp.get_data(as_text=True) == "content,content", resp.get_data(as_text=True)
+        assert resp.get_data(as_text=True) == '[]', resp.get_data(as_text=True)
 
 if __name__ == '__main__':
     unittest.main()

@@ -10,7 +10,7 @@ from flask_restful import reqparse
 
 import api
 import api.v1
-from api.v1.daos import Response200DAO, StatusCode, optionDAO, StatusDAO
+from logic.daos import Response200DAO, StatusCode, optionDAO, StatusDAO
 from logic.metadata import Metadata
 
 parser = reqparse.RequestParser()
@@ -27,11 +27,10 @@ class New(flask_restful.Resource):
     def post(self):
         args = parser.parse_args()
 
-        datamanager = api.getdatamanager()
+        datamanager = api.get_datamanager()
         (id, path) = datamanager.new()
 
         # Writing images
-        print("name: " + args['name'])
         for image in args.images:
             image.save(os.path.join(path, image.filename))
 
@@ -45,6 +44,7 @@ class New(flask_restful.Resource):
 
         # Writting metadata
         metadata = Metadata(
+            uuid=id,
             name = args['name'],
             images = [image.filename for image in args.images],
             options = options,
@@ -52,7 +52,9 @@ class New(flask_restful.Resource):
             status = StatusDAO(StatusCode.QUEUED),
             processingTime=-1
         )
+
         datamanager.setstatus(id, json.dumps(metadata.toDict()))
+        api.get_executor().process(path, os.path.join(path, datamanager.STATUS_FILE))
 
         current_app.logger.info("task/new request with meta {}".format(json.dumps(metadata.toDict(), separators=(',',':'))))
         return Response200DAO(id).toDict()

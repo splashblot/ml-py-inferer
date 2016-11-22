@@ -1,13 +1,15 @@
 import os
 
-import flask
 from flask import Flask, current_app, g
 
 from api.v1 import api_v1_bp
 from api.v2 import api_v2_bp, API_VERSION_V2
+from faster_rcnn.inferer import InfererWorker, InfererHandler
+from logic.executor import Executor
 from logic.fs import Fs
 
-def create_app(environment=None):
+
+def create_app(environment=None, config_file=None):
     app = Flask(__name__)
     with app.app_context():
         if not environment:
@@ -17,6 +19,8 @@ def create_app(environment=None):
             'config_{}.py'.format(environment.lower()),
             silent=True
         )
+        if config_file:
+            app.confi.from_pyfile(config_file, silent=True)
 
         app.register_blueprint(
             api_v1_bp,
@@ -29,15 +33,32 @@ def create_app(environment=None):
                 prefix=app.config['URL_PREFIX'],
                 version=API_VERSION_V2))
 
-        # setattr(flask.g, 'datamanager', Fs(app.config['TASKS_STORAGE_ROOT']))
+        # For storing FS into flask.g we use the property app_ctx_globals_class
+
+        app.app_ctx_globals_class.datamanager = Fs(current_app.config['TASKS_STORAGE_ROOT'])
+
+        workers = app.config['EXECUTOR_WORKERS']
+        inferer_handler = InfererHandler(app.config)
+        executor = Executor(
+            [InfererWorker(inferer_handler) for i in range(workers)],
+            app.config['EXECUTOR_QUEUE_SIZE'],
+            "Inference Executor"
+        )
+        app.app_ctx_globals_class.executor = executor
 
         return app
 
 
-def getdatamanager() -> Fs:
-    """Opens a new datamanager if there is none yet for the
+def get_datamanager() -> Fs:
+    """
+    Opens a new datamanager if there is none yet for the
     current application context.
     """
-    if not hasattr(g, 'datamanager'):
-        g.datamanager = Fs(flask.current_app.config['TASKS_STORAGE_ROOT'])
     return g.datamanager
+
+
+def get_executor() -> Executor:
+    """"
+    Returns the executor that can be used for enqueue data
+    """
+    return g.executor

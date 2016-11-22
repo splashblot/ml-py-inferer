@@ -4,32 +4,28 @@ import json
 import flask_restful
 
 import api
-from api.v1.daos import TaskInfoDAO
 from logic import Metadata
+from logic.daos import TaskInfoDAO
 
 
 class Info(flask_restful.Resource):
     def get(self, uuid):
         metadata = self.loadmetadata(uuid)
-        datamanager = api.getdatamanager()
-
-        resp = self.metadatatoinfo(metadata, uuid, len(datamanager.files(uuid)))
-
+        resp = self.metadatatoinfo(metadata)
         return resp.toDict()
 
     def loadmetadata(self, uuid):
-        datamanager = api.getdatamanager()
-        print (datamanager.getstatus(uuid) + uuid)
+        datamanager = api.get_datamanager()
         return Metadata.fromDict(json.loads(datamanager.getstatus(uuid)))
 
-    def metadatatoinfo(self, metadata:Metadata, uuid, imagesCount) -> TaskInfoDAO:
+    def metadatatoinfo(self, metadata: Metadata) -> TaskInfoDAO:
         return TaskInfoDAO(
             dateCreated=metadata.creation_date.timestamp(),
-            imagesCount=imagesCount,
+            imagesCount=len(metadata.images),
             name=metadata.name,
             options=metadata.options,
             processingTime=metadata.processingTime,
             status=metadata.status,
-            uuid=uuid
+            uuid=metadata.uuid
         )
 
