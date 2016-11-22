@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import argparse
-
-import api
 import _init_paths
+import argparse
+import api
+
 
 def parse_args():
     """Parse input arguments."""
