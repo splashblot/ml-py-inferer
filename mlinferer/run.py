@@ -18,5 +18,5 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    app = api.create_app()
+    app = api.create_app(config_file=args.config_file)
     app.run(host=app.config['HOST'], port=app.config['PORT'])

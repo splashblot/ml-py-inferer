@@ -4,7 +4,7 @@ WORKDIR /root
 RUN git clone https://github.com/splashblot/ml-py-inferer.git
 WORKDIR /root/ml-py-inferer
 # Checking out just particular commit
-RUN git fetch && git checkout c33723e580f92edae31194df7f74aba059a55609
+RUN git fetch && git checkout 7252616d5b2c7654e53211ae3c93a754f689c7c2
 
 RUN ln -s /root/py-faster-rcnn py-faster-rcnn
 
