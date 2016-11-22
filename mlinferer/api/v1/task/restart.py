@@ -11,5 +11,4 @@ parser.add_argument('uuid', type=str, required=True, help='UUID of the task')
 class Restart(flask_restful.Resource):
     def post(self):
         args = parser.parse_args()
-        print("uuuid: " + args['uuid'])
         return ResponseDAO(success=False, error="Not implemented.").toDict()

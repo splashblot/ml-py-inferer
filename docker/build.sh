@@ -1,1 +1,1 @@
-nvidia-docker build -t tileo/ml-py-inferer .
+nvidia-docker build -t splashblot/ml-py-inferer .

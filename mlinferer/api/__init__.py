@@ -20,7 +20,7 @@ def create_app(environment=None, config_file=None):
             silent=True
         )
         if config_file:
-            app.confi.from_pyfile(config_file, silent=True)
+            app.config.from_pyfile(config_file)
 
         app.register_blueprint(
             api_v1_bp,
