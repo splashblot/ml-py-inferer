@@ -3,7 +3,7 @@
 import argparse
 
 import api
-
+import _init_paths
 
 def parse_args():
     """Parse input arguments."""
