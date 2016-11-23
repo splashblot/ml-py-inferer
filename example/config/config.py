@@ -15,17 +15,17 @@ PY_FASTER_RCNN_MODELS = {
                 'usecpu': True
             },
             'default': True
+        },
+        'nectarine-18000': {
+            'inferer': {
+                'caffemodel': PROJECT_ROOT + "/models/nectarines/vgg16_faster_rcnn_iter_18000.caffemodel",
+                'prototxt': PROJECT_ROOT + "/models/nectarines/VGG16/faster_rcnn_end2end/test.prototxt",
+                'cfgfile': PROJECT_ROOT + "/models/nectarines/cfgs/faster_rcnn_end2end.yml",
+                'usecpu': True
+            },
         }
-#,
-#        'nectarine-18000': {
-#            'inferer': {
-#                'caffemodel': PROJECT_ROOT + "/models/nectarines/vgg16_faster_rcnn_iter_18000.caffemodel",
-#                'prototxt': PROJECT_ROOT + "/models/nectarines/VGG16/faster_rcnn_end2end/test.prototxt",
-#                'cfgfile': PROJECT_ROOT + "/models/nectarines/cfgs/faster_rcnn_end2end.yml",
-#                'usecpu': True
-#            },
-#        }
 }
 EXECUTOR_WORKERS = 2
 EXECUTOR_QUEUE_SIZE = 50  # Backpressure queue
+
 
