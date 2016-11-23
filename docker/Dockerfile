@@ -1,10 +1,10 @@
-FROM tileo/py-faster-rcnn
+FROM splashblot/py-faster-rcnn-cpu
 
 WORKDIR /root
 RUN git clone https://github.com/splashblot/ml-py-inferer.git
 WORKDIR /root/ml-py-inferer
 # Checking out just particular commit
-RUN git fetch && git checkout 7252616d5b2c7654e53211ae3c93a754f689c7c2
+RUN git fetch && git checkout 343c8fa3c8a355d2582fac8b4226720abb2d8a3c
 
 RUN ln -s /root/py-faster-rcnn py-faster-rcnn
 
