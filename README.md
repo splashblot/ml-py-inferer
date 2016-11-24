@@ -21,3 +21,5 @@ so it cannot be considered "secure"
  the fastest. 
 * Output should also include xml annotation files with predicted bounding boxes and the
 status file with the metadata.
+* Current task schedulling and execution is done by a hand made Executor. Maybe 
+it would have sense to explore something like http://www.celeryproject.org/
